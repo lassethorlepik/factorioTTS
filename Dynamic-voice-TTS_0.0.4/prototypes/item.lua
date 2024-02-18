@@ -102,7 +102,7 @@ data:extend({
     {
         type = "recipe",
         name = "TTS-programmable-speaker-recipe",
-        enabled = true,
+        enabled = false,
         ingredients =
         {
             {"programmable-speaker", 1},
