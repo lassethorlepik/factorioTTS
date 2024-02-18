@@ -87,7 +87,7 @@ function play_sound_for_players_in_range(text, object, global_sound)
     for _, player in pairs(game.players) do
         if player.connected then  -- Check if the player is currently connected
             if global_sound then
-                log_voice(text, player, true, getRelativePosition(player.character.position, object.position))
+                log_voice(text, player, true, {x = 0.0, y = 0.0}) -- Audio is played directly to player
             else
                 local distance = get_player_object_distance(player, object)
                 if distance and distance <= 250 then
