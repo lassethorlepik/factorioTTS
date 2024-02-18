@@ -307,3 +307,11 @@ function getRelativePosition(playerPos, objectPos)
     local normalized_dy = math.max(math.min(dy / maxDistance, 1), -1)
     return {x = normalized_dx, y = normalized_dy}
 end
+
+script.on_event(defines.events.on_entity_settings_pasted, function(event)
+    if event.source.name == "TTS-programmable-speaker" and event.destination.name == "TTS-programmable-speaker" then
+        -- Apply the text from the source entity to the destination entity
+        global.TTS_speaker_texts[event.destination.unit_number] = global.TTS_speaker_texts[event.source.unit_number]
+    end
+end)
+
