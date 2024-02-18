@@ -14,12 +14,12 @@ data:extend({
         order = "b"
     },
     {
-        type = "int-setting",
+        type = "double-setting",
         name = "distance_limit",
         setting_type = "runtime-per-user",
-        minimum_value = 10,
-        maximum_value = 1000,
-        default_value = 250,
+        minimum_value = 10.0,
+        maximum_value = 250,
+        default_value = 150,
         order = "c"
     },
     {
@@ -28,5 +28,14 @@ data:extend({
         setting_type = "runtime-per-user",
         default_value = true,
         order = "d"
-    }
+    },
+    {
+        type = "double-setting",
+        name = "distance_limit_trains",
+        setting_type = "runtime-per-user",
+        minimum_value = 10,
+        maximum_value = 250,
+        default_value = 150,
+        order = "e"
+    },
 })
