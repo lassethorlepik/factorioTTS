@@ -69,7 +69,7 @@ function play_train_sound_for_players_in_range(text, object)
     for _, player in pairs(game.players) do
         if player.connected and settings.get_player_settings(player)["train_stop_voices"].value then  -- Check if the player is currently connected
             distance = get_player_object_distance(game.players[player.index], object)
-            if distance and distance <= 250 then
+            if distance and distance <= 75 then
                 log_voice(text .. "\n", player)
             end
         end
