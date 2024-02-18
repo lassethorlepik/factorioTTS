@@ -67,7 +67,7 @@ data:extend({
             usage_priority = "secondary-input",
             emissions_per_minute = 0,
         },
-        energy_usage_per_tick = "500W",
+        energy_usage_per_tick = "4kW",
 
         -- Circuit network connections
         circuit_wire_connection_point = circuit_connector_definitions["programmable-speaker"].points,
@@ -95,7 +95,7 @@ data:extend({
         place_result = "TTS-programmable-speaker",
         flags = {},
         subgroup = "circuit-network",
-        order = "b[programmable-speaker]",
+        order = "programmable-speaker2",
         stack_size = 50,
     },
     -- Recipe to craft the speaker

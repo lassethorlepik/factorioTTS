@@ -131,12 +131,12 @@ script.on_event(defines.events.on_gui_opened, function(event)
         end
 
         -- Create a new frame that is draggable
-        local frame = player.gui.screen.add{
+        local frame = player.gui.center.add{
             type = "frame",
             name = "TTS_speaker_textbox_frame",
             direction = "vertical",
             caption = "TTS Announcement",  -- The caption is necessary for the frame to be draggable
-            draggable = true
+            draggable = true,
         }
 
         -- Add a text field to the frame for input, preloaded with existing text
@@ -153,9 +153,6 @@ script.on_event(defines.events.on_gui_opened, function(event)
             name = "TTS_speaker_textbox_submit",
             caption = "Set Text"
         }
-
-        -- Bring the GUI to the front
-        frame.bring_to_front()
 
         -- Store the unit number in the frame for later reference
         frame.tags = { speaker_unit_number = entity.unit_number }
