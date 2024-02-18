@@ -30,7 +30,7 @@ This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive a
 ## Dependencies
 
 - An active internet connection for Google TTS.
-- Python environment set up through the provided `Start.bat` script.
+- Python environment set up through the provided `launcher.py` script.
 - Factorio base game
 
 ## Usage
