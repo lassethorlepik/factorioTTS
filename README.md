@@ -19,7 +19,7 @@ This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive a
 
 ### Train Stop Announcements
 
-- When a player is within 250 tiles of a train stop and a train arrives, the mod will announce the current and next stops.
+- When a player is within 75 tiles of a train stop and a train arrives, the mod will announce the current and next stops.
 - Announcement format: "`<current stop name>. Next stop <next stop name>.`"
 - This feature can be disabled by each player.
 
