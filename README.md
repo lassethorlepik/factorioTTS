@@ -6,7 +6,7 @@ This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive a
 
 1. Unpack the contents of the zip file into the `mods` folder of Factorio.
 2. Navigate to `/PythonScript/` and run `launcher.py`. This script will set up a virtual environment, install necessary dependencies, and start the Python program.
-3. Ensure you have an active internet connection as this mod utilizes Google TTS for voicing text.
+3. Ensure you have an active internet connection as this mod utilizes Edge TTS for voicing text.
 
 ## Features
 
@@ -19,8 +19,14 @@ This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive a
 ### Train Stop Announcements
 
 - When a player is within 150 tiles of a train stop and a train arrives, the mod will announce the current and next stops.
-- Announcement format: "`<current stop name>. Next stop <next stop name>.`"
+- Announcement text can be customized.
 - This feature can be disabled by each player.
+
+### Custom Voices
+
+- There are 314 supported voice models in different languages and genders.
+- Swap models and all settings at runtime, no reloads necessary for both factorio and the python script.
+- You can customize the speed and pitch of the voice.
 
 ### TTS Speakers
 
@@ -29,7 +35,7 @@ This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive a
 
 ## Dependencies
 
-- An active internet connection for Google TTS.
+- An active internet connection for Edge TTS.
 - Python environment set up through the provided `launcher.py` script.
 - Factorio base game
 

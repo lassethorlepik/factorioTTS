@@ -1,5 +1,7 @@
 local voice_file = "voicedata.txt"
+local settings_file = "settings.txt"
 local cache_tag = "[#@CACHE@#]"
+local flush_tag = "[#@FLUSH@#]"
 
 -- Basic TTS logging functionality
 
@@ -30,8 +32,8 @@ function on_train_stops(train)
         end
         -- Get the next stop's record
         local next_stop_record = schedule.records[next_stop_index]
-        if next_stop_record then
-            play_train_sound_for_players_in_range(train.station.backer_name .. ". Next stop " .. next_stop_record.station, train.front_stock)
+        if next_stop_record and train.station and next_stop_record.station then
+            play_train_sound_for_players_in_range(train.station.backer_name, next_stop_record.station, train.front_stock)
         end
     end
 end
@@ -55,11 +57,11 @@ script.on_event(defines.events.on_console_chat, function(event)
         -- Print the text sent by the player
         for _, player in pairs(game.players) do
             player_settings = settings.get_player_settings(player)
-            if player_settings["player_TTS"].value then
+            if player_settings["TTS_MOD_player_TTS"].value then
                 if player.connected then  -- Check if the player is currently connected
                     distance = get_player_distance(game.players[player.index], game.players[event.player_index])
                     if distance then
-                        if not player_settings["distance_limit_enabled"].value or distance <= player_settings["distance_limit"].value then
+                        if not player_settings["TTS_MOD_distance_limit_enabled"].value or distance <= player_settings["TTS_MOD_distance_limit"].value then
                             local listener = game.players[player.index].character.position
                             local speaker = game.players[event.player_index].character.position
                             log_voice(event.message, player, false, getRelativePosition(listener, speaker)) -- Don't cache player messages as they are likely to be unique
@@ -71,12 +73,13 @@ script.on_event(defines.events.on_console_chat, function(event)
     end
 end)
 
-function play_train_sound_for_players_in_range(text, object)
+function play_train_sound_for_players_in_range(stop_name, next_stop_name, object)
     for _, player in pairs(game.players) do
         player_settings = settings.get_player_settings(player)
-        if player.connected and settings.get_player_settings(player)["train_stop_voices"].value then  -- Check if the player is currently connected
+        if player.connected and settings.get_player_settings(player)["TTS_MOD_train_stop_voices"].value then  -- Check if the player is currently connected
             distance = get_player_object_distance(game.players[player.index], object)
-            if distance and distance <= player_settings["distance_limit_trains"].value then
+            if distance and distance <= player_settings["TTS_MOD_distance_limit_trains"].value then
+                text = stop_name .. player_settings["TTS_MOD_train_announcement_text"].value .. next_stop_name
                 log_voice(text, player, true, getRelativePosition(player.character.position, object.position))
             end
         end
@@ -237,12 +240,51 @@ script.on_event(defines.events.on_gui_click, function(event)
     end
 end)
 
+global.TTS_SPEAKERS = global.TTS_SPEAKERS or {}
+
+-- When a TTS speaker is built
+script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity},
+    function(event)
+        local entity = event.created_entity
+        if entity.name == "TTS-programmable-speaker" then
+            table.insert(global.TTS_SPEAKERS, entity)
+        end
+    end
+)
+
+-- When a TTS speaker is removed
+script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_mined_entity, defines.events.on_entity_died},
+    function(event)
+        local entity = event.entity
+        if entity.name == "TTS-programmable-speaker" then
+            for i, coop in ipairs(global.TTS_SPEAKERS) do
+                if coop == entity then
+                    table.remove(global.TTS_SPEAKERS, i)
+                    break
+                end
+            end
+        end
+    end
+)
+
+script.on_init(function()
+    global.TTS_SPEAKERS = {}
+end)
+
+script.on_configuration_changed(function()
+    global.TTS_SPEAKERS = {}  -- Clear the existing cache
+    for _, surface in pairs(game.surfaces) do  -- Iterate through all surfaces
+        for _, entity in pairs(surface.find_entities_filtered{name = "TTS-programmable-speaker"}) do
+            table.insert(global.TTS_SPEAKERS, entity)  -- Re-add valid entities to the cache
+        end
+    end
+end)
 
 script.on_event(defines.events.on_tick, function(event)
     -- Example: Check every 2 seconds to allow time for sound to play when looping
     if event.tick % 120 == 0 then
-        for _, surface in pairs(game.surfaces) do
-            for _, speaker in pairs(surface.find_entities_filtered{name="TTS-programmable-speaker"}) do
+        for _, speaker in pairs(global.TTS_SPEAKERS) do
+            if speaker.valid then
                 local network = speaker.get_circuit_network(defines.wire_type.red) or speaker.get_circuit_network(defines.wire_type.green)
                 -- Proceed only if the speaker is connected to a circuit network
                 if network then
@@ -315,3 +357,34 @@ script.on_event(defines.events.on_entity_settings_pasted, function(event)
     end
 end)
 
+-- When any mod setting is changed, this event is fired
+script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
+    apply_mod_settings()
+end)
+
+-- When the game configuration changes, such as when mods are added or updated
+script.on_configuration_changed(onConfigChangedHandler)
+local function onConfigChangedHandler(eventData)
+    if eventData.mod_changes and eventData.mod_changes["Dynamic-voice-TTS"] then
+        apply_mod_settings()
+    end
+end
+
+-- When a player joins the game, useful if settings are player-specific
+script.on_event(defines.events.on_player_joined_game, function(event)
+    apply_mod_settings()
+end)
+
+function apply_mod_settings()
+    base_string = "[VOICE]\n%s\n[RATE]\n%s\n[CHECK_DELAY]\n%s\n[STARTUP_MESSAGE]\n%s\n"
+    for _, player in pairs(game.players) do
+        player_settings = settings.get_player_settings(player)
+        voice = player_settings["TTS_MOD_voice_model"].value
+        rate = player_settings["TTS_MOD_voice_rate"].value
+        delay = player_settings["TTS_MOD_check_delay"].value
+        startup_message = player_settings["TTS_MOD_startup_message"].value
+        settings_string = string.format(base_string, voice, rate, delay, startup_message)
+        game.write_file(settings_file, settings_string, false, player.index)
+        log_voice(flush_tag, player, false, {x = 0, y = 0}) -- Forces python script to flush cache
+    end
+end

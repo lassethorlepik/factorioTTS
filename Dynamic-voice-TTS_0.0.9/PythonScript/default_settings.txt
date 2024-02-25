@@ -1,0 +1,8 @@
+[VOICE] The voice model used. Check PythonScript/voices.txt for valid model names
+en-GB-RyanNeural
+[RATE] Voice reading speed modifier in percentages. Default 0, 50 would be 150% - half faster.
++0%
+[CHECK_DELAY] How often the program checks for new texts to play (milliseconds), lower values offer better latency but have higher performance cost.
+50
+[STARTUP_MESSAGE] "True" if you want the monitor to confirm starting up with a voice line.
+True
