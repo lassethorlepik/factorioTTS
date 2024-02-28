@@ -2,6 +2,7 @@ local voice_file = "voicedata.txt"
 local settings_file = "settings.txt"
 local cache_tag = "[#@CACHE@#]"
 local flush_tag = "[#@FLUSH@#]"
+local voice_tag_start = "[MODEL="
 
 -- Basic TTS logging functionality
 
@@ -64,7 +65,16 @@ script.on_event(defines.events.on_console_chat, function(event)
                         if not player_settings["TTS_MOD_distance_limit_enabled"].value or distance <= player_settings["TTS_MOD_distance_limit"].value then
                             local listener = game.players[player.index].character.position
                             local speaker = game.players[event.player_index].character.position
-                            log_voice(event.message, player, false, getRelativePosition(listener, speaker)) -- Don't cache player messages as they are likely to be unique
+
+                            -- Message starts with voice tag? Then don't include it automatically, this allows players to temporarily use a different voice using the voice tag
+                            local start = string.sub(event.message, 1, string.len(voice_tag_start))
+                            if start ~= voice_tag_start then
+                                model = voice_tag_start .. settings.get_player_settings(event.player_index)["TTS_MOD_player_voice_model"].value .. "]"
+                                final_message = model .. event.message
+                            else
+                                final_message = event.message
+                            end
+                            log_voice(final_message, player, false, getRelativePosition(listener, speaker)) -- Don't cache player messages as they are likely to be unique
                         end
                     end
                 end

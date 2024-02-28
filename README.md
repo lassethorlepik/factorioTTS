@@ -13,6 +13,7 @@ This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive a
 ### Player Chat Text-To-Speech
 
 - Player messages in chat are voiced through TTS.
+- Each player can choose their own voice, that is heard by others in multiplayer.
 - Proximity chat is enabled by default, allowing you to hear messages from players within a 250 tile radius.
 - This feature can be toggled off if desired.
 
@@ -36,6 +37,7 @@ This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive a
 ## Dependencies
 
 - An active internet connection for Edge TTS.
+- Python installed.
 - Python environment set up through the provided `launcher.py` script.
 - Factorio base game
 

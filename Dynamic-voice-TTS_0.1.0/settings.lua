@@ -7,6 +7,13 @@ data:extend({
         order = "a"
     },
     {
+        type = "string-setting",
+        name = "TTS_MOD_player_voice_model",
+        setting_type = "runtime-per-user",
+        default_value = "en-GB-RyanNeural",
+        order = "ab"
+    },
+    {
         type = "bool-setting",
         name = "TTS_MOD_distance_limit_enabled",
         setting_type = "runtime-per-user",

@@ -13,7 +13,8 @@ from pathlib import Path
 
 # CUSTOMIZE SETTINGS IN SETTINGS.TXT OR IN-GAME OPTIONS
 
-PATTERN = r'\((-?\d+\.\d+),\s*(-?\d+\.\d+)\)(.*)'
+PATTERN = r'\((-?\d+\.\d+),\s*(-?\d+\.\d+)\)(.*)'  # coordinate search
+MODEL_PATTERN = r"\[MODEL=(.*?)\]"  # voice model search
 CACHE_TAG = "[#@CACHE@#]"
 CACHE_TAG_LENGTH = len(CACHE_TAG)
 FLUSH_TAG = "[#@FLUSH@#]"
@@ -22,6 +23,7 @@ VOICE_DATA_PATH = SCRIPT_OUTPUT / "voicedata.txt"
 SETTINGS_PATH = SCRIPT_OUTPUT / "settings.txt"
 CACHE_DIR = Path('cache')
 
+"[#@MODEL=sometext@#]"
 
 def read_settings():
     """Read settings from the settings file and update global variables."""
@@ -35,8 +37,15 @@ def read_settings():
 
 
 async def save_generated_voice(text, filename) -> None:
+    global voice
     read_settings()
-    print(voice)
+    
+    match = re.search(MODEL_PATTERN, text)
+    if match:
+        voice = match.group(1)
+        # Remove the model tag from the input string
+        text = re.sub(MODEL_PATTERN, "", text)
+    
     volume = "+0%"  # Default, no need to change, we play from mp3 and handle volume manually with greater control
     pitch = "+0Hz"  # Default
     communicate = edge_tts.Communicate(text, voice, rate=rate, volume=volume, pitch=pitch)
@@ -195,14 +204,15 @@ def play_sound_based_on_location(sound, channel, x, y):
 
 def check_settings():
     """Ensure settings file exists and has default settings"""
+    CACHE_DIR.mkdir(exist_ok=True)
     if not os.path.exists(SETTINGS_PATH):
         print("Settings not found, copying defaults...")
         shutil.copy("default_settings.txt", SETTINGS_PATH)
 
 
 def initialize_cache():
-    """Ensure the cache directory exists and is cleared."""
-    CACHE_DIR.mkdir(exist_ok=True)
+    """Ensure the script directory and cache directory exists and is cleared."""
+    SCRIPT_OUTPUT.mkdir(exist_ok=True)
     clear_mp3_files_in_cache()
 
 
