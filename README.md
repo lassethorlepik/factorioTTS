@@ -28,6 +28,7 @@ This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive a
 - There are 314 supported voice models in different languages and genders.
 - Swap models and all settings at runtime, no reloads necessary for both factorio and the python script.
 - You can customize the speed and pitch of the voice.
+- If any read text includes a tag with model name, for example: [MODEL=en-GB-RyanNeural], then it will override the used voice model for that text.
 
 ### TTS Speakers
 
