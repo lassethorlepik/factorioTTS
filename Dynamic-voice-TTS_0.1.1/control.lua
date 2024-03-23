@@ -166,7 +166,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
             type = "frame",
             name = "TTS_speaker_textbox_frame",
             direction = "vertical",
-            caption = "TTS Announcement",  -- Ensure this caption is not empty
+            caption = {"TTS-GUI.announcement"},  -- Ensure this caption is not empty
             draggable = true,
         }
 
@@ -197,13 +197,13 @@ script.on_event(defines.events.on_gui_opened, function(event)
         button_flow.add{
             type = "button",
             name = "TTS_speaker_textbox_submit",
-            caption = "Set text"
+            caption = {"TTS-GUI.set-text"}
         }
 
         button_flow.add{
             type = "button",
             name = "TTS_speaker_cancel",
-            caption = "Cancel"
+            caption = {"TTS-GUI.cancel"}
         }
         
         if global.TTS_speaker_interface_positions[player.index] then
