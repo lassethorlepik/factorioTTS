@@ -1,6 +1,11 @@
 # Factorio TTS Mod
 
 This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive auditory experience by voicing specific in-game events. Stereo audio is supported for all sounds - voice will come from a direction and have correct volume depending on the distance of the source. To use this mod, follow the setup instructions and keep the accompanying Python script running in the background while playing.
+Following links include short clips showing basic functionality:
+
+Train voice in action | Multiplayer chat in action
+:-: | :-:
+<video src='https://github.com/lassethorlepik/testing/assets/59596492/e1fea4ce-d01c-468b-9994-c96e6a9c3baf' width=180/></video> | <video src='https://github.com/lassethorlepik/testing/assets/59596492/ba1c84c0-4680-4757-9a3b-92a6b9e0ab06' width=180/></video>
 
 ## Setup Instructions
 
@@ -38,7 +43,7 @@ This mod integrates Text-To-Speech (TTS) into Factorio, providing an immersive a
 ## Dependencies
 
 - An active internet connection for Edge TTS.
-- Python installed.
+- Python installed, most likely version 3.6 and newer will work.
 - Python environment set up through the provided `launcher.py` script.
 - Factorio base game
 
