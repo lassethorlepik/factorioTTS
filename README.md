@@ -5,7 +5,7 @@ Following links include short clips showing basic functionality:
 
 Train voice in action | Multiplayer chat in action
 :-: | :-:
-<video src='https://github.com/lassethorlepik/testing/assets/59596492/e1fea4ce-d01c-468b-9994-c96e6a9c3baf' width=180/></video> | <video src='https://github.com/lassethorlepik/testing/assets/59596492/ba1c84c0-4680-4757-9a3b-92a6b9e0ab06' width=180/></video>
+<video src='https://github.com/lassethorlepik/factorioTTS/assets/59596492/67b51e25-0491-460c-9c55-abfe9f4690ec' width=180/></video> | <video src='https://github.com/lassethorlepik/factorioTTS/assets/59596492/70c25cf1-fdcf-4daf-8fe4-3c3922784f8b' width=180/></video>
 
 ## Setup Instructions
 
