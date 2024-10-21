@@ -2,8 +2,8 @@ data:extend({
     {
         type = "programmable-speaker",
         name = "TTS-programmable-speaker",
-        icon = "__base__/graphics/icons/programmable-speaker.png",
-        icon_size = 64, icon_mipmaps = 4,
+        icon = "__Dynamic-voice-TTS__/graphics/TTS-programmable-speaker.png",
+        icon_size = 64,
         flags = {"placeable-neutral", "player-creation"},
         minable = {mining_time = 0.1, result = "TTS-programmable-speaker-item"},
         maximum_polyphony = 25,
@@ -23,49 +23,32 @@ data:extend({
         -- Sprite definitions for the entity
         sprite =
         {
-          layers =
-          {
+        layers =
+        {
             {
-              filename = "__base__/graphics/entity/programmable-speaker/programmable-speaker.png",
-              priority = "extra-high",
-              width = 30,
-              height = 89,
-              shift = util.by_pixel(-2, -39.5),
-              hr_version =
-              {
-                filename = "__base__/graphics/entity/programmable-speaker/hr-programmable-speaker.png",
+                filename = "__base__/graphics/entity/programmable-speaker/programmable-speaker.png",
                 priority = "extra-high",
                 width = 59,
                 height = 178,
                 shift = util.by_pixel(-2.25, -39.5),
                 scale = 0.5
-              }
             },
             {
-              filename = "__base__/graphics/entity/programmable-speaker/programmable-speaker-shadow.png",
-              priority = "extra-high",
-              width = 119,
-              height = 25,
-              shift = util.by_pixel(52.5, -2.5),
-              draw_as_shadow = true,
-              hr_version =
-              {
-                filename = "__base__/graphics/entity/programmable-speaker/hr-programmable-speaker-shadow.png",
+                filename = "__base__/graphics/entity/programmable-speaker/programmable-speaker-shadow.png",
                 priority = "extra-high",
                 width = 237,
                 height = 50,
                 shift = util.by_pixel(52.75, -3),
                 draw_as_shadow = true,
                 scale = 0.5
-              }
             }
-          }
+        }
         },
 
         energy_source = {
             type = "electric",
             usage_priority = "secondary-input",
-            emissions_per_minute = 0,
+            emissions_per_minute = {pollution=0},
         },
         energy_usage_per_tick = "4kW",
 
@@ -86,29 +69,5 @@ data:extend({
             rotate = false,
             orientation_to_variation = false
         }
-    },
-    {
-        type = "item",
-        name = "TTS-programmable-speaker-item",
-        icon = "__base__/graphics/icons/programmable-speaker.png",
-        icon_size = 64,
-        place_result = "TTS-programmable-speaker",
-        flags = {},
-        subgroup = "circuit-network",
-        order = "programmable-speaker2",
-        stack_size = 50,
-    },
-    -- Recipe to craft the speaker
-    {
-        type = "recipe",
-        name = "TTS-programmable-speaker-recipe",
-        enabled = false,
-        ingredients =
-        {
-            {"programmable-speaker", 1},
-            {"copper-cable", 1},
-            {"electronic-circuit", 1}
-        },
-        result = "TTS-programmable-speaker-item"
     }
 })

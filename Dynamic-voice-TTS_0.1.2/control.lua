@@ -12,7 +12,7 @@ local function log_voice(text, player, cache_sound, position)
         rest_text = cache_tag .. rest_text
     end
     local formatted_string = string.format("(%.2f, %.2f)%s", position.x, position.y, rest_text)
-    game.write_file(voice_file, formatted_string, true, player.index)
+    helpers.write_file(voice_file, formatted_string, true, player.index)
 end
 
 -- Train announcments
@@ -145,17 +145,17 @@ script.on_event(defines.events.on_gui_opened, function(event)
         local player = game.players[event.player_index]
         player.opened = nil
         if player.gui.screen["TTS_speaker_textbox_frame"] then
-            global.TTS_speaker_interface_positions[player.index] = player.gui.screen["TTS_speaker_textbox_frame"].location
+            storage.TTS_speaker_interface_positions[player.index] = player.gui.screen["TTS_speaker_textbox_frame"].location
             player.gui.screen["TTS_speaker_textbox_frame"].destroy()
-            if global.last_opened_speaker[player.index] == entity.unit_number then
-                global.last_opened_speaker[player.index] = nil
+            if storage.last_opened_speaker[player.index] == entity.unit_number then
+                storage.last_opened_speaker[player.index] = nil
                 return
             end
         end
-        if global.last_opened_speaker == nil then
-            global.last_opened_speaker = {}
+        if storage.last_opened_speaker == nil then
+            storage.last_opened_speaker = {}
         end
-        global.last_opened_speaker[player.index] = entity.unit_number
+        storage.last_opened_speaker[player.index] = entity.unit_number
         -- Remove existing frame if it exists
         if player.gui.screen["TTS_speaker_textbox_frame"] then
             player.gui.screen["TTS_speaker_textbox_frame"].destroy()
@@ -183,7 +183,7 @@ script.on_event(defines.events.on_gui_opened, function(event)
             name = "TTS_speaker_textbox"
         }
         -- Load the existing text if available
-        textbox.text = global.TTS_speaker_texts and global.TTS_speaker_texts[entity.unit_number] or ""
+        textbox.text = storage.TTS_speaker_texts and storage.TTS_speaker_texts[entity.unit_number] or ""
 
         textbox.style.minimal_width = 222
 
@@ -206,8 +206,8 @@ script.on_event(defines.events.on_gui_opened, function(event)
             caption = {"TTS-GUI.cancel"}
         }
         
-        if global.TTS_speaker_interface_positions[player.index] then
-            frame.location = global.TTS_speaker_interface_positions[player.index]
+        if storage.TTS_speaker_interface_positions[player.index] then
+            frame.location = storage.TTS_speaker_interface_positions[player.index]
         else
             -- Manually set the location of the frame to center it on the screen
             local resolution = player.display_resolution
@@ -233,10 +233,10 @@ script.on_event(defines.events.on_gui_click, function(event)
         local unit_number = frame.tags.speaker_unit_number
 
         -- Store the text for this specific speaker
-        global.TTS_speaker_texts[unit_number] = text
+        storage.TTS_speaker_texts[unit_number] = text
         -- Store the UI position for player
         local player_index = event.player_index
-        global.TTS_speaker_interface_positions[player_index] = frame.location
+        storage.TTS_speaker_interface_positions[player_index] = frame.location
 
         -- Close the GUI
         frame.destroy()
@@ -244,56 +244,82 @@ script.on_event(defines.events.on_gui_click, function(event)
         if event.element.name == "TTS_speaker_cancel" then
             local frame = event.element.parent.parent.parent
             local player_index = event.player_index
-            global.TTS_speaker_interface_positions[player_index] = frame.location
+            storage.TTS_speaker_interface_positions[player_index] = frame.location
             frame.destroy()
         end
     end
 end)
 
-global.TTS_SPEAKERS = global.TTS_SPEAKERS or {}
+storage.TTS_SPEAKERS = storage.TTS_SPEAKERS or {}
+
+event_filter = {
+    {filter="name", name="TTS-programmable-speaker"}
+}
+
+function on_built(event)
+    local entity = event.entity
+    storage.TTS_SPEAKERS[entity.unit_number] = entity
+end
+
+function on_destroyed(event)
+    local entity = event.entity
+    storage.TTS_SPEAKERS[entity.unit_number] = nil
+end
 
 -- When a TTS speaker is built
-script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity},
+script.on_event(defines.events.on_built_entity,
     function(event)
-        local entity = event.created_entity
-        if entity.name == "TTS-programmable-speaker" then
-            table.insert(global.TTS_SPEAKERS, entity)
-        end
+        on_built(event)
     end
-)
+, event_filter)
+script.on_event(defines.events.on_robot_built_entity,
+    function(event)
+        on_built(event)
+    end
+, event_filter)
+
 
 -- When a TTS speaker is removed
-script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_mined_entity, defines.events.on_entity_died},
+script.on_event(defines.events.on_player_mined_entity,
     function(event)
-        local entity = event.entity
-        if entity.name == "TTS-programmable-speaker" then
-            for i, coop in ipairs(global.TTS_SPEAKERS) do
-                if coop == entity then
-                    table.remove(global.TTS_SPEAKERS, i)
-                    break
-                end
-            end
-        end
+        on_destroyed(event)
     end
-)
+, event_filter)
+script.on_event(defines.events.on_robot_mined_entity,
+    function(event)
+        on_destroyed(event)
+    end
+, event_filter)
+script.on_event(defines.events.on_entity_died,
+    function(event)
+        on_destroyed(event)
+    end
+, event_filter)
 
 script.on_init(function()
-    global.TTS_SPEAKERS = {}
+    storage.TTS_SPEAKERS = {}
 end)
 
 script.on_configuration_changed(function()
-    global.TTS_SPEAKERS = {}  -- Clear the existing cache
+    storage.TTS_SPEAKERS = {}  -- Clear the existing cache
     for _, surface in pairs(game.surfaces) do  -- Iterate through all surfaces
         for _, entity in pairs(surface.find_entities_filtered{name = "TTS-programmable-speaker"}) do
-            table.insert(global.TTS_SPEAKERS, entity)  -- Re-add valid entities to the cache
+            storage.TTS_SPEAKERS[entity.unit_number] = entity  -- Re-add valid entities to the cache
         end
+    end
+end)
+
+script.on_event(defines.events.on_entity_settings_pasted, function(event)
+    if event.source.name == "TTS-programmable-speaker" and event.destination.name == "TTS-programmable-speaker" then
+        -- Apply the text from the source entity to the destination entity
+        storage.TTS_speaker_texts[event.destination.unit_number] = storage.TTS_speaker_texts[event.source.unit_number]
     end
 end)
 
 script.on_event(defines.events.on_tick, function(event)
     -- Example: Check every 2 seconds to allow time for sound to play when looping
     if event.tick % 120 == 0 then
-        for _, speaker in pairs(global.TTS_SPEAKERS) do
+        for _, speaker in pairs(storage.TTS_SPEAKERS) do
             if speaker.valid then
                 local network = speaker.get_circuit_network(defines.wire_type.red) or speaker.get_circuit_network(defines.wire_type.green)
                 -- Proceed only if the speaker is connected to a circuit network
@@ -312,8 +338,8 @@ script.on_event(defines.events.on_tick, function(event)
                     else
                         local green_signal = network.get_signal({type="virtual", name="signal-green"})
                         if green_signal and green_signal ~= 0 then
-                            global.TTS_speaker_texts[speaker.unit_number] = global.TTS_speaker_texts[speaker.unit_number] or ""
-                            speaker_play(global.TTS_speaker_texts[speaker.unit_number], speaker)
+                            storage.TTS_speaker_texts[speaker.unit_number] = storage.TTS_speaker_texts[speaker.unit_number] or ""
+                            speaker_play(storage.TTS_speaker_texts[speaker.unit_number], speaker)
                             local control_behavior = speaker.get_control_behavior()
                             control_behavior.circuit_condition = {
                                 condition = {
@@ -335,15 +361,15 @@ function speaker_play(text, speaker)
 end
 
 script.on_init(function()
-    global.TTS_speaker_interface_positions = global.TTS_speaker_interface_positions or {}
-    global.TTS_speaker_texts = global.TTS_speaker_texts or {}
-    global.last_opened_speaker = global.last_opened_speaker or {}
+    storage.TTS_speaker_interface_positions = storage.TTS_speaker_interface_positions or {}
+    storage.TTS_speaker_texts = storage.TTS_speaker_texts or {}
+    storage.last_opened_speaker = storage.last_opened_speaker or {}
 end)
 
 script.on_configuration_changed(function()
-    global.TTS_speaker_interface_positions = global.TTS_speaker_interface_positions or {}
-    global.TTS_speaker_texts = global.TTS_speaker_texts or {}
-    global.last_opened_speaker = global.last_opened_speaker or {}
+    storage.TTS_speaker_interface_positions = storage.TTS_speaker_interface_positions or {}
+    storage.TTS_speaker_texts = storage.TTS_speaker_texts or {}
+    storage.last_opened_speaker = storage.last_opened_speaker or {}
 end)
 
 function getRelativePosition(playerPos, objectPos)
@@ -359,13 +385,6 @@ function getRelativePosition(playerPos, objectPos)
     local normalized_dy = math.max(math.min(dy / maxDistance, 1), -1)
     return {x = normalized_dx, y = normalized_dy}
 end
-
-script.on_event(defines.events.on_entity_settings_pasted, function(event)
-    if event.source.name == "TTS-programmable-speaker" and event.destination.name == "TTS-programmable-speaker" then
-        -- Apply the text from the source entity to the destination entity
-        global.TTS_speaker_texts[event.destination.unit_number] = global.TTS_speaker_texts[event.source.unit_number]
-    end
-end)
 
 -- When any mod setting is changed, this event is fired
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
@@ -394,7 +413,7 @@ function apply_mod_settings()
         delay = player_settings["TTS_MOD_check_delay"].value
         startup_message = player_settings["TTS_MOD_startup_message"].value
         settings_string = string.format(base_string, voice, rate, delay, startup_message)
-        game.write_file(settings_file, settings_string, false, player.index)
+        helpers.write_file(settings_file, settings_string, false, player.index)
         log_voice(flush_tag, player, false, {x = 0, y = 0}) -- Forces python script to flush cache
     end
 end

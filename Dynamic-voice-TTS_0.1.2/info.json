@@ -1,9 +1,9 @@
 {
     "name": "Dynamic-voice-TTS",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "title": "Dynamic voice TTS",
     "author": "estgamer",
-    "factorio_version": "1.1",
+    "factorio_version": "2.0",
     "description": "Adds dynamically voiced player proximity chat, train stop announcements and speakers. Calculates volume and direction based on source location. Logs data for realtime Text-to-Speech integration. Running included python script in background will synthesize audio. Read install instructions.",
     "dependencies": ["base >= 0.17.0"]
   }
